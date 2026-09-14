@@ -1,0 +1,27 @@
+name: Validar y compilar Windows
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+      - name: Validar sintaxis
+        run: python -m py_compile gestor_proyectos.py
+      - name: Compilar ejecutable
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name Gestor_Proyectos_Investigacion gestor_proyectos.py
+      - name: Publicar instalable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gestor-Proyectos-Windows
+          path: dist/Gestor_Proyectos_Investigacion.exe
+          if-no-files-found: error
